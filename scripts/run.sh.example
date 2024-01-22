@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# app config
+export SERVER_PORT=3000
+
+# openai config
+export OPENAI_API_KEY=test
+export OPENAI_V1_BASE_URL=test
+export OPENAI_ASSISTANT_ID=test
+
+go build -o main ./cmd/main.go && ./main
