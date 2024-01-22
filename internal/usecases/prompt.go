@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2/log"
-	"github.com/yonisaka/assistant/internal/entities/repository"
-	"github.com/yonisaka/assistant/internal/infrastructure/connector"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/yonisaka/assistant/internal/entities/repository"
+	"github.com/yonisaka/assistant/internal/infrastructure/connector"
 )
 
 // SendPrompt is a function to send prompt to OpenAI with several steps below:
@@ -61,19 +62,18 @@ func (u *promptUsecase) createThread(ctx context.Context) (string, error) {
 		},
 	}
 
-	var threadResponse *connector.OpenAIThread
-	err := u.connector.Send(ctx, httpRequestOption, &threadResponse)
-	if err != nil {
+	var result *connector.OpenAIThread
+	if err := u.connector.Send(ctx, httpRequestOption, &result); err != nil {
 		return "", err
 	}
 
-	if threadResponse == nil {
+	if result == nil {
 		return "", connector.ErrCreateThread
 	}
 
-	log.Infow("Thread Created:", "id", threadResponse.FirstID)
+	log.Infow("Thread Created:", "id", result.FirstID)
 
-	return threadResponse.FirstID, err
+	return result.FirstID, nil
 }
 
 // createMessage is a function to create message in OpenAI
@@ -85,8 +85,7 @@ func (u *promptUsecase) createMessage(ctx context.Context, threadID, message str
 	}
 
 	var bufMessage bytes.Buffer
-	err := json.NewEncoder(&bufMessage).Encode(requestBodyMessage)
-	if err != nil {
+	if err := json.NewEncoder(&bufMessage).Encode(requestBodyMessage); err != nil {
 		return err
 	}
 
@@ -99,17 +98,16 @@ func (u *promptUsecase) createMessage(ctx context.Context, threadID, message str
 		Body: &bufMessage,
 	}
 
-	var messageResponse *repository.Message
-	err = u.connector.Send(ctx, httpRequestOption, &messageResponse)
-	if err != nil {
+	var result *repository.Message
+	if err := u.connector.Send(ctx, httpRequestOption, &result); err != nil {
 		return err
 	}
 
-	if messageResponse == nil {
+	if result == nil {
 		return connector.ErrCreateMessage
 	}
 
-	log.Infow("Message Created:", "id", messageResponse.ID, "content", messageResponse.Content)
+	log.Infow("Message Created:", "id", result.ID, "content", result.Content)
 
 	return nil
 }
@@ -123,8 +121,7 @@ func (u *promptUsecase) runThread(ctx context.Context, threadID string) (string,
 	}
 
 	var bufRun bytes.Buffer
-	err := json.NewEncoder(&bufRun).Encode(requestBodyRun)
-	if err != nil {
+	if err := json.NewEncoder(&bufRun).Encode(requestBodyRun); err != nil {
 		return "", err
 	}
 
@@ -137,19 +134,18 @@ func (u *promptUsecase) runThread(ctx context.Context, threadID string) (string,
 		Body: &bufRun,
 	}
 
-	var runResponse *connector.OpenAIRun
-	err = u.connector.Send(ctx, httpRequestOption, &runResponse)
-	if err != nil {
+	var result *connector.OpenAIRun
+	if err := u.connector.Send(ctx, httpRequestOption, &result); err != nil {
 		return "", err
 	}
 
-	if runResponse == nil {
+	if result == nil {
 		return "", connector.ErrRunThread
 	}
 
-	log.Infow("Run Created:", "id", runResponse.ID, "status", runResponse.Status)
+	log.Infow("Run Created:", "id", result.ID, "status", result.Status)
 
-	return runResponse.ID, err
+	return result.ID, nil
 }
 
 // runStatus is a function to check run status in OpenAI
@@ -166,22 +162,21 @@ func (u *promptUsecase) runStatus(ctx context.Context, threadID, runID string) e
 	}
 
 	runStep := 1
-	for {
-		var runStatusResponse *connector.OpenAIRun
-		err := u.connector.Send(ctx, httpRequestOption, &runStatusResponse)
-		if err != nil {
+	for { //nolint: wsl
+		var result *connector.OpenAIRun
+		if err := u.connector.Send(ctx, httpRequestOption, &result); err != nil {
 			return err
 		}
 
-		if runStatusResponse == nil {
+		if result == nil {
 			return connector.ErrRunStatusThread
 		}
 
-		log.Infow("Run Status:", "id", runStatusResponse.ID, "status", runStatusResponse.Status, "step", runStep)
+		log.Infow("Run Status:", "id", result.ID, "status", result.Status, "step", runStep)
 
-		if runStatusResponse.Status != "" &&
-			runStatusResponse.Status != connector.OpenAIStatusQueued &&
-			runStatusResponse.Status != connector.OpenAIStatusInProgress {
+		if result.Status != "" &&
+			result.Status != connector.OpenAIStatusQueued &&
+			result.Status != connector.OpenAIStatusInProgress {
 			break
 		}
 
@@ -205,17 +200,16 @@ func (u *promptUsecase) getPromptResponse(ctx context.Context, threadID string) 
 		},
 	}
 
-	var promptResponse *connector.OpenAIMessage
-	err := u.connector.Send(ctx, httpRequestOption, &promptResponse)
-	if err != nil {
+	var result *connector.OpenAIMessage
+	if err := u.connector.Send(ctx, httpRequestOption, &result); err != nil {
 		return nil, err
 	}
 
-	if promptResponse == nil {
+	if result == nil {
 		return nil, connector.ErrGetPrompt
 	}
 
-	log.Infow("Prompt Last Response:", "id", promptResponse.Data[0].ID)
+	log.Infow("Prompt Last Response:", "id", result.Data[0].ID)
 
-	return &promptResponse.Data[0], err
+	return &result.Data[0], nil
 }

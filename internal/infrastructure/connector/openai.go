@@ -2,6 +2,7 @@ package connector
 
 import (
 	"errors"
+
 	"github.com/yonisaka/assistant/internal/entities/repository"
 )
 

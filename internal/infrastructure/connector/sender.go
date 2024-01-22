@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2/log"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2/log"
 )
 
 // Send is a function to send HTTP Request
@@ -14,7 +15,8 @@ func (c *connector) Send(ctx context.Context, requestOption *RequestOption, resu
 	url := fmt.Sprintf("%s%s", c.openai.BaseURL, requestOption.URL)
 	log.Infow("Request Created:", "url", url, "method", requestOption.Method)
 
-	request, err := http.NewRequest(
+	request, err := http.NewRequestWithContext(
+		ctx,
 		requestOption.Method,
 		url,
 		requestOption.Body,

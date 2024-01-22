@@ -2,8 +2,9 @@ package di
 
 import (
 	"fmt"
-	"github.com/yonisaka/assistant/internal/infrastructure/connector"
 	"os"
+
+	"github.com/yonisaka/assistant/internal/infrastructure/connector"
 )
 
 // GetConnector is a function to get connector

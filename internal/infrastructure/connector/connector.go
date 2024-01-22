@@ -5,6 +5,9 @@ import (
 	"io"
 )
 
+//go:generate rm -f ./connector_mock.go
+//go:generate mockgen -destination connector_mock.go -package connector -mock_names Connector=GoMockConnector -source connector.go
+
 type connector struct {
 	openai *OpenAI
 }

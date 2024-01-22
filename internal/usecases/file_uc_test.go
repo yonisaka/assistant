@@ -5,12 +5,12 @@ import (
 	"github.com/yonisaka/assistant/internal/usecases"
 )
 
-type promptFields struct {
+type fileFields struct {
 	connector connector.Connector
 }
 
-func promptSut(f promptFields) usecases.PromptUsecase {
-	return usecases.NewPromptUsecase(
+func fileSut(f fileFields) usecases.FileUsecase {
+	return usecases.NewFileUsecase(
 		f.connector,
 	)
 }

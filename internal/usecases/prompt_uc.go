@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+
 	"github.com/yonisaka/assistant/internal/entities/repository"
 	"github.com/yonisaka/assistant/internal/infrastructure/connector"
 )

@@ -25,3 +25,6 @@ go.work
 
 # Go compiled files
 main
+
+# Test Coverage
+.coverage

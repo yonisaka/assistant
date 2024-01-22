@@ -2,9 +2,10 @@ package usecases
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/yonisaka/assistant/internal/entities/repository"
 	"github.com/yonisaka/assistant/internal/infrastructure/connector"
-	"net/http"
 )
 
 // GetListFile is a function to get list file from OpenAI API
